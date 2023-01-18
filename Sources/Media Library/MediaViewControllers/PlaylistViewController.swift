@@ -9,6 +9,12 @@
  *
  * Refer to the COPYING file of the official project for license.
  *****************************************************************************/
+import UniformTypeIdentifiers
+
+protocol AddItemToPlaylistViewDelegate {
+    func handleAddFilesToPlaylist()
+    func handleAddFolderToPlaylist()
+}
 
 class PlaylistViewController: MediaViewController {
     override init(services: Services) {
@@ -33,5 +39,49 @@ class PlaylistViewController: MediaViewController {
 
     func resetTitleView() {
         navigationItem.titleView = nil
+    }
+}
+
+// MARK: - AddItemToPlaylistViewDelegate
+extension PlaylistCategoryViewController: AddItemToPlaylistViewDelegate {
+    func handleAddFilesToPlaylist() {
+        if #available(iOS 14.0, *) {
+            openDocumentPicker(contentTypes: [.item])
+        } else {
+            openDocumentPicker(documentTypes: ["public.item"])
+        }
+    }
+
+    func handleAddFolderToPlaylist() {
+        if #available(iOS 14.0, *) {r
+            openDocumentPicker(contentTypes: [.folder])
+        } else {
+            openDocumentPicker(documentTypes: ["public.folder"])
+        }
+    }
+    
+    @available(iOS 14.0, *)
+    private func openDocumentPicker(contentTypes: [UTType]) {
+        let vc = UIDocumentPickerViewController(forOpeningContentTypes: contentTypes)
+        vc.allowsMultipleSelection = true
+        vc.delegate = self
+        present(vc, animated: true, completion: nil)
+    }
+    
+    private func openDocumentPicker(documentTypes: [String]) {
+        let vc = UIDocumentPickerViewController(documentTypes: documentTypes, in: .open)
+        if #available(iOS 11.0, *) {
+            vc.allowsMultipleSelection = true
+        }
+        vc.delegate = self
+        present(vc, animated: true, completion: nil)
+    }
+}
+
+// MARK: Document pickers delete
+extension PlaylistCategoryViewController: UIDocumentPickerDelegate {
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt documents: [URL]) {
+        print(documents)
+        
     }
 }

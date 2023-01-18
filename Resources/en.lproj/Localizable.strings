@@ -344,9 +344,14 @@
 "BUTTON_SELECT_ALL" = "Select all";
 "BUTTON_SELECT_ALL_HINT" = "Select all the media items present in this view";
 
-
 "ADD_TO_PLAYLIST" = "Add to Playlist";
 "ADD_TO_PLAYLIST_HINT" = "Open the add to playlist menu";
+
+"ADD_FILE_TO_PLAYLIST" = "Add file to Playlist";
+"ADD_FILE_TO_PLAYLIST_HINT" = "Open the add file to playlist menu";
+
+"ADD_FOLDER_TO_PLAYLIST" = "Add folder to Playlist";
+"ADD_FOLDER_TO_PLAYLIST_HINT" = "Open the add folder to playlist menu";
 
 "PLAYLIST_PLACEHOLDER" = "Playlist title";
 "PLAYLIST_DESCRIPTION" = "Choose a title for your new playlist";

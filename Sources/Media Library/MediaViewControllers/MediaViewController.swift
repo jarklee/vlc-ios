@@ -12,7 +12,6 @@
 
 import UIKit
 import Foundation
-import FileProvider
 
 class MediaViewController: VLCPagingViewController<VLCLabelCell> {
 
@@ -57,20 +56,20 @@ class MediaViewController: VLCPagingViewController<VLCLabelCell> {
     }()
     
     private lazy var addFilesToPlaylistButton: UIBarButtonItem = {
-        var add = UIBarButtonItem(image: UIImage(named: "addToPlaylist"),
+        var add = UIBarButtonItem(image: UIImage(named: "addFileToPlaylist"),
                                         style: .plain, target: self,
                                         action: #selector(handleAddFilesToPlaylist))
-        add.accessibilityLabel = NSLocalizedString("ADD_TO_PLAYLIST", comment: "")
-        add.accessibilityHint = NSLocalizedString("ADD_TO_PLAYLIST_HINT", comment: "")
+        add.accessibilityLabel = NSLocalizedString("ADD_FILE_TO_PLAYLIST", comment: "")
+        add.accessibilityHint = NSLocalizedString("ADD_FILE_TO_PLAYLIST_HINT", comment: "")
         return add
     }()
     
     private lazy var addFolderToPlaylistButton: UIBarButtonItem = {
-        var add = UIBarButtonItem(image: UIImage(named: "addToPlaylist"),
+        var add = UIBarButtonItem(image: UIImage(named: "addFolderToPlaylist"),
                                         style: .plain, target: self,
                                         action: #selector(handleAddFolderToPlaylist))
-        add.accessibilityLabel = NSLocalizedString("ADD_TO_PLAYLIST", comment: "")
-        add.accessibilityHint = NSLocalizedString("ADD_TO_PLAYLIST_HINT", comment: "")
+        add.accessibilityLabel = NSLocalizedString("ADD_FOLDER_TO_PLAYLIST", comment: "")
+        add.accessibilityHint = NSLocalizedString("ADD_FOLDER_TO_PLAYLIST_HINT", comment: "")
         return add
     }()
 
@@ -397,34 +396,6 @@ extension MediaViewController {
             mediaCategoryViewController.handleSortLongPress(sender: sender)
         }
     }
-    
-    @objc func handleAddFilesToPlaylist() {
-        let localVC: UIDocumentPickerViewController
-        if #available(iOS 14.0, *) {
-            localVC = UIDocumentPickerViewController(forOpeningContentTypes: [.item])
-        } else {
-            localVC = UIDocumentPickerViewController(documentTypes: ["public.item"], in: .open)
-        }
-        if #available(iOS 11.0, *) {
-            localVC.allowsMultipleSelection = true
-        }
-        localVC.delegate = self
-        present(localVC, animated: true, completion: nil)
-    }
-
-    @objc func handleAddFolderToPlaylist() {
-        let localVC: UIDocumentPickerViewController
-        if #available(iOS 14.0, *) {
-            localVC = UIDocumentPickerViewController(forOpeningContentTypes: [.folder])
-        } else {
-            localVC = UIDocumentPickerViewController(documentTypes: ["public.folder"], in: .open)
-        }
-        if #available(iOS 11.0, *) {
-            localVC.allowsMultipleSelection = true
-        }
-        localVC.delegate = self
-        present(localVC, animated: true, completion: nil)
-    }
 }
 
 // MARK: - UIMenu
@@ -568,9 +539,17 @@ extension MediaViewController {
     }
 }
 
-// MARK: Document pickers delete
-extension MediaViewController: UIDocumentPickerDelegate {
-    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt documents: [URL]) {
-        print(documents)
+// MARK: - playlist
+extension MediaViewController {
+    @objc func handleAddFilesToPlaylist() {
+        if let delegate = viewControllers[currentIndex] as? AddItemToPlaylistViewDelegate {
+            delegate.handleAddFilesToPlaylist()
+        }
+    }
+    
+    @objc func handleAddFolderToPlaylist() {
+        if let delegate = viewControllers[currentIndex] as? AddItemToPlaylistViewDelegate {
+            delegate.handleAddFolderToPlaylist()
+        }
     }
 }
