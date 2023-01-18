@@ -205,6 +205,9 @@ class MediaCategoryViewController: UICollectionViewController, UISearchBarDelega
         navItemTitle.font = UIFont.preferredCustomFont(forTextStyle: .headline).bolded
 
         self.navigationItem.titleView = navItemTitle
+        if model is PlaylistModel {
+            // TODO: - Add create playlist button
+        }
         NotificationCenter.default.addObserver(self, selector: #selector(themeDidChange),
                                                name: .VLCThemeDidChangeNotification, object: nil)
 

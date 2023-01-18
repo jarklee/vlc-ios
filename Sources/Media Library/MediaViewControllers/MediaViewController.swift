@@ -12,6 +12,7 @@
 
 import UIKit
 import Foundation
+import FileProvider
 
 class MediaViewController: VLCPagingViewController<VLCLabelCell> {
 
@@ -53,6 +54,24 @@ class MediaViewController: VLCPagingViewController<VLCLabelCell> {
         selectAll.accessibilityLabel = NSLocalizedString("BUTTON_SELECT_ALL", comment: "")
         selectAll.accessibilityHint = NSLocalizedString("BUTTON_SELECT_ALL_HINT", comment: "")
         return selectAll
+    }()
+    
+    private lazy var addFilesToPlaylistButton: UIBarButtonItem = {
+        var add = UIBarButtonItem(image: UIImage(named: "addToPlaylist"),
+                                        style: .plain, target: self,
+                                        action: #selector(handleAddFilesToPlaylist))
+        add.accessibilityLabel = NSLocalizedString("ADD_TO_PLAYLIST", comment: "")
+        add.accessibilityHint = NSLocalizedString("ADD_TO_PLAYLIST_HINT", comment: "")
+        return add
+    }()
+    
+    private lazy var addFolderToPlaylistButton: UIBarButtonItem = {
+        var add = UIBarButtonItem(image: UIImage(named: "addToPlaylist"),
+                                        style: .plain, target: self,
+                                        action: #selector(handleAddFolderToPlaylist))
+        add.accessibilityLabel = NSLocalizedString("ADD_TO_PLAYLIST", comment: "")
+        add.accessibilityHint = NSLocalizedString("ADD_TO_PLAYLIST_HINT", comment: "")
+        return add
     }()
 
     // MARK: UIMenu & UIActions
@@ -155,7 +174,8 @@ class MediaViewController: VLCPagingViewController<VLCLabelCell> {
         rightBarButtons = isEditing ? [doneButton] : rightBarButtonItems(for: viewController)
 
         var mediaCategoryViewController: UIViewController = self
-        if navigationController?.viewControllers.last is ArtistViewController {
+        if navigationController?.viewControllers.last is ArtistViewController
+            || viewController is PlaylistCategoryViewController {
             showButtons = true
             mediaCategoryViewController = self
         } else if viewController is CollectionCategoryViewController {
@@ -198,6 +218,10 @@ class MediaViewController: VLCPagingViewController<VLCLabelCell> {
 
         if #available(iOS 14.0, *) {
             rightBarButtonItems = [menuButton]
+        }
+        
+        if viewController is PlaylistCategoryViewController {
+            rightBarButtonItems = [addFolderToPlaylistButton, addFilesToPlaylistButton]
         }
 
         if !rendererButton.isHidden {
@@ -373,6 +397,34 @@ extension MediaViewController {
             mediaCategoryViewController.handleSortLongPress(sender: sender)
         }
     }
+    
+    @objc func handleAddFilesToPlaylist() {
+        let localVC: UIDocumentPickerViewController
+        if #available(iOS 14.0, *) {
+            localVC = UIDocumentPickerViewController(forOpeningContentTypes: [.item])
+        } else {
+            localVC = UIDocumentPickerViewController(documentTypes: ["public.item"], in: .open)
+        }
+        if #available(iOS 11.0, *) {
+            localVC.allowsMultipleSelection = true
+        }
+        localVC.delegate = self
+        present(localVC, animated: true, completion: nil)
+    }
+
+    @objc func handleAddFolderToPlaylist() {
+        let localVC: UIDocumentPickerViewController
+        if #available(iOS 14.0, *) {
+            localVC = UIDocumentPickerViewController(forOpeningContentTypes: [.folder])
+        } else {
+            localVC = UIDocumentPickerViewController(documentTypes: ["public.folder"], in: .open)
+        }
+        if #available(iOS 11.0, *) {
+            localVC.allowsMultipleSelection = true
+        }
+        localVC.delegate = self
+        present(localVC, animated: true, completion: nil)
+    }
 }
 
 // MARK: - UIMenu
@@ -513,5 +565,12 @@ extension MediaViewController {
         }
 
         return UIMenu(options: .displayInline, children: rightMenuItems)
+    }
+}
+
+// MARK: Document pickers delete
+extension MediaViewController: UIDocumentPickerDelegate {
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt documents: [URL]) {
+        print(documents)
     }
 }
